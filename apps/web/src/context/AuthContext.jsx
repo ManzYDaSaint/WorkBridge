@@ -1,0 +1,86 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const savedUser = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
+        if (savedUser && token) {
+            setUser(JSON.parse(savedUser));
+        }
+        setLoading(false);
+    }, []);
+
+    const login = async (email, password) => {
+        const response = await fetch('http://localhost:3000/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('token', data.token);
+            setUser(data.user);
+            return data.user;
+        } else {
+            throw new Error(data.error || 'Login failed');
+        }
+    };
+
+    const register = async (formData) => {
+        const response = await fetch('http://localhost:3000/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('token', data.token);
+            setUser(data.user);
+            return data.user;
+        } else {
+            throw new Error(data.error || 'Registration failed');
+        }
+    };
+
+    const logout = () => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        setUser(null);
+    };
+
+    const toggleSubscription = async () => {
+        if (!user || user.role !== 'JOB_SEEKER') return;
+
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:3000/notifications/toggle-subscription', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+        });
+
+        if (response.ok) {
+            const updatedUser = { ...user, jobSeeker: { ...user.jobSeeker, isSubscribed: !user.jobSeeker.isSubscribed } };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            setUser(updatedUser);
+        }
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, loading, login, register, logout, toggleSubscription }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export const useAuth = () => useContext(AuthContext);

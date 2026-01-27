@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  JOB_SEEKER
+  EMPLOYER
+  ADMIN
+}
+
+enum EmployerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  phone     String?  @unique
+  password  String
+  role      Role     @default(JOB_SEEKER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobSeeker JobSeeker?
+  employer  Employer?
+  notifications Notification[]
+}
+
+model JobSeeker {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  fullName  String
+  bio       String?
+  location  String?
+  skills    String[]
+  resumeUrl String?
+  isSubscribed Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Employer {
+  id           String         @id @default(uuid())
+  userId       String         @unique
+  user         User           @relation(fields: [userId], references: [id])
+  companyName  String
+  industry     String?
+  location     String?
+  status       EmployerStatus @default(PENDING)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  jobs Job[]
+}
+
+model Job {
+  id           String   @id @default(uuid())
+  employerId   String
+  employer     Employer @relation(fields: [employerId], references: [id])
+  title        String
+  description  String
+  skills       String[]
+  location     String
+  type         String // full-time, part-time, contract
+  salaryRange  String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  applications Application[]
+  payments     Payment[]
+}
+
+model Application {
+  id          String    @id @default(uuid())
+  jobId       String
+  job         Job       @relation(fields: [jobId], references: [id])
+  seekerId    String
+  jobSeeker   JobSeeker @relation(fields: [seekerId], references: [id])
+  status      String    @default("PENDING") // PENDING, REVIEWED, REJECTED, ACCEPTED
+  createdAt   DateTime  @default(now())
+
+  @@unique([jobId, seekerId])
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  jobId         String?
+  job           Job?     @relation(fields: [jobId], references: [id])
+  amount        Float
+  currency      String   @default("MWK")
+  status        String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  provider      String   // AIRTEL_MONEY, TNM_MPAMBA
+  transactionId String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // INFO, SUCCESS, WARNING, ERROR
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

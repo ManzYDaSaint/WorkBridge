@@ -228,44 +228,128 @@ Optional later:
 
 ---
 
-## 14. Tech Stack (Recommended)
+---
+
+## 14. Tech Stack
 
 ### Frontend
-
-* React (mobile-first)
-* Tailwind CSS
-* PWA-ready
+- **React + Vite**: Mobile-first architecture.
+- **Tailwind CSS**: Utility-first styling.
+- **PWA-ready**: Designed for offline-first capabilities.
 
 ### Backend
+- **Node.js + Fastify**: High-performance, low-overhead web framework.
+- **REST API**: Standardized JSON endpoints.
 
-* Node.js
-* Fastify
-* REST API
-
-### Database
-
-* PostgreSQL
-
-### Auth
-
-* JWT-based authentication
+### Database & Auth
+- **PostgreSQL**: Relational data integrity.
+- **JWT**: Stateless session management.
 
 ---
 
-## 15. Database Core Tables (Minimum)
+## 15. System Architecture
+
+```mermaid
+graph TD
+    subgraph Client_Layer["Client Layer (Mobile First)"]
+        PWA["React PWA (Vite)"]
+    end
+
+    subgraph API_Layer["API Layer"]
+        Fastify["Fastify Server (Node.js)"]
+        Auth["JWT Auth Service"]
+    end
+
+    subgraph Data_Layer["Data Layer"]
+        DB[(PostgreSQL)]
+    end
+
+    subgraph Services["Services"]
+        Payment["Payment Gateway (Airtel/TNM)"]
+        Email["Email Service (SMTP/Resend)"]
+    end
+
+    PWA <-->|REST API / JWT| Fastify
+    Fastify <--> Auth
+    Fastify <--> DB
+    Fastify <--> Payment
+    Fastify <--> Email
+```
+
+---
+
+## 16. Security & Compliance
+
+WorkBridge is built with enterprise-grade security principles:
+- **Data Protection**: All sensitive data (PII) is encrypted at rest.
+- **Authentication**: JWT-based stateless auth with short-lived tokens and secure refresh mechanisms.
+- **Authorization**: Role-Based Access Control (RBAC) for Seekers, Employers, and Admins.
+- **Audit Trails**: Critical actions (job deletions, status changes) are logged in the `audit_logs` table.
+- **Input Validation**: Strict schema validation using JSON Schema/TypeBox.
+
+---
+
+## 17. Getting Started (DX)
+
+### Prerequisites
+- **Node.js**: v18+ 
+- **PostgreSQL**: v14+
+- **Package Manager**: npm
+
+### Local Setup
+1. **Clone the repo**:
+   ```bash
+   git clone https://github.com/ManzyDaSaint/WorkBridge.git
+   cd WorkBridge
+   ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Environment Setup**:
+   Create a `.env` file based on `.env.example`.
+4. **Database Migration**:
+   ```bash
+   npm run migrate
+   ```
+5. **Run Development Server**:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 18. Infrastructure & Operations
+
+### CI/CD Pipeline
+- **GitHub Actions**: Automated linting, testing, and deployment.
+- **Automated Testing**: Pre-push hooks for unit tests.
+
+### Deployment
+- **Hosting**: Scalable cloud hosting (e.g., AWS, Render).
+- **SSL/TLS**: Mandatory encryption for all traffic.
+
+### Observability
+- **Error Tracking**: Sentry integration for real-time crash reporting.
+- **Logging**: Structured JSON logging for easy parsing and monitoring.
+- **Health Checks**: `/health` endpoint for uptime monitoring.
+
+---
+
+## 19. Database Core Tables
 
 * users
 * job_seekers
 * employers
 * jobs
 * applications
-* waitlist (employers & features)
+* waitlist
 * notifications
-* Audit Logs
+* audit_logs
 
 ---
 
-## 16. Non-Goals (DO NOT BUILD IN MVP)
+## 20. Non-Goals (DO NOT BUILD IN MVP)
 
 * Full AI chatbot
 * Resume parsing engine
@@ -275,53 +359,48 @@ Optional later:
 
 ---
 
-## 17. Development Phases
+## 21. Development Phases
 
-### Phase 1 (Weeks 1–2)
+### Phase 1 (Weeks 1–2): Foundation
+- Auth & RBAC
+- User Roles & Profile Management
+- Employer Approval Workflow
 
-* Auth
-* User roles
-* Employer approval
+### Phase 2 (Weeks 3–4): Core Interaction
+- Job Lifecycle (Post, Edit, Deactivate)
+- Application Flow
+- Rule-based Matching logic
+- Notification System
 
-### Phase 2 (Weeks 3–4)
-
-* Job posting & applications
-* Matching
-* Notifications
-
-### Phase 3 (Week 5)
-
-* Admin dashboard
-* UX polish
-* Public MVP launch
-
----
-
-## 18. Launch Checklist
-
-* Employers onboarded
-* At least 20–50 real jobs
-* Clear monetization message
-* Feedback channel active
+### Phase 3 (Week 5): Polish & Launch
+- Admin Dashboard for platform management
+- Financial Gateway integration (Airtel/TNM)
+- UX Polish & Performance Optimization
+- Public MVP launch
 
 ---
 
-## 19. Success Metric for MVP
+## 22. Success Metrics & Launch Checklist
 
-> If employers are posting jobs and job seekers are applying — the MVP is successful.
+### Launch Checklist
+- [ ] 20-50 verified employers onboarded
+- [ ] Payment gateway integration verified
+- [ ] SSL certs and production security audit
+- [ ] Feedback channel active
+
+### Success Metric
+> **North Star**: Daily Active Applications (DAA) and Employer Retention rate. If employers post and seekers apply, the gap is bridged.
 
 ---
 
-## 20. Long-Term Vision (After Validation)
+## 23. Long-Term Vision
 
-* Advanced AI matching
-* Employer subscriptions
-* Recruitment-as-a-service
-* Native mobile apps
-* Regional expansion
+* **Advanced AI**: Deep learning for hyper-personalized matching.
+* **Service Ecosystem**: Recruitment-as-a-Service (RaaS) and native mobile apps.
+* **Regional Expansion**: Scaling beyond Malawi to neighboring markets.
 
 ---
 
 **End of Document**
 
-> Build this first. Everything else comes later.
+> Build with focus. Scale with intent.
