@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, Check, Info, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { apiFetch } from '../../lib/api';
 
 const NotificationDropdown = ({ isMobile = false }) => {
     const [notifications, setNotifications] = useState([]);
@@ -7,11 +8,8 @@ const NotificationDropdown = ({ isMobile = false }) => {
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
     const fetchNotifications = async () => {
-        const token = localStorage.getItem('token');
         try {
-            const res = await fetch('http://localhost:3000/notifications', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await apiFetch('/notifications');
             const data = await res.json();
             setNotifications(data);
         } catch (err) {
@@ -20,11 +18,9 @@ const NotificationDropdown = ({ isMobile = false }) => {
     };
 
     const markAsRead = async (id) => {
-        const token = localStorage.getItem('token');
         try {
-            await fetch(`http://localhost:3000/notifications/${id}/read`, {
+            await apiFetch(`/notifications/${id}/read`, {
                 method: 'PATCH',
-                headers: { Authorization: `Bearer ${token}` }
             });
             setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
         } catch (err) {

@@ -2,6 +2,12 @@ const bcrypt = require('bcrypt');
 const prisma = require('../prisma');
 
 class AuthService {
+    sanitizeUser(user) {
+        if (!user) return null;
+        const { password, ...safe } = user;
+        return safe;
+    }
+
     async register(data) {
         const { email, password, role, fullName, companyName, industry, location } = data;
 
@@ -36,7 +42,12 @@ class AuthService {
                 });
             }
 
-            return user;
+            const fullUser = await tx.user.findUnique({
+                where: { id: user.id },
+                include: { jobSeeker: true, employer: true },
+            });
+
+            return this.sanitizeUser(fullUser);
         });
     }
 
@@ -59,7 +70,42 @@ class AuthService {
             throw new Error('Invalid credentials');
         }
 
-        return user;
+        return this.sanitizeUser(user);
+    }
+
+    async loginById(userId) {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: { jobSeeker: true, employer: true }
+        });
+        return this.sanitizeUser(user);
+    }
+
+    async issueRefreshToken(userId) {
+        const refreshToken = require('crypto').randomBytes(48).toString('hex');
+        const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+        const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: { refreshTokenHash, refreshTokenExpiresAt }
+        });
+
+        return { refreshToken, refreshTokenExpiresAt };
+    }
+
+    async verifyRefreshToken(userId, refreshToken) {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user || !user.refreshTokenHash || !user.refreshTokenExpiresAt) return false;
+        if (user.refreshTokenExpiresAt < new Date()) return false;
+        return await bcrypt.compare(refreshToken, user.refreshTokenHash);
+    }
+
+    async clearRefreshToken(userId) {
+        await prisma.user.update({
+            where: { id: userId },
+            data: { refreshTokenHash: null, refreshTokenExpiresAt: null }
+        });
     }
 }
 

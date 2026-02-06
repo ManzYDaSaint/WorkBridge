@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE_URL, refreshSession } from '../lib/api';
 
 const AuthContext = createContext(null);
 
@@ -11,14 +12,26 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token');
         if (savedUser && token) {
             setUser(JSON.parse(savedUser));
+            setLoading(false);
+            return;
+        }
+        if (savedUser && !token) {
+            refreshSession().then((ok) => {
+                if (ok) {
+                    const updated = localStorage.getItem('user');
+                    if (updated) setUser(JSON.parse(updated));
+                }
+            }).finally(() => setLoading(false));
+            return;
         }
         setLoading(false);
     }, []);
 
     const login = async (email, password) => {
-        const response = await fetch('http://localhost:3000/login', {
+        const response = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ email, password }),
         });
 
@@ -34,9 +47,10 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (formData) => {
-        const response = await fetch('http://localhost:3000/register', {
+        const response = await fetch(`${API_BASE_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(formData),
         });
 
@@ -51,7 +65,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            const userId = user?.id;
+            await fetch(`${API_BASE_URL}/logout`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ userId })
+            });
+        } catch (err) {
+            // ignore
+        }
         localStorage.removeItem('user');
         localStorage.removeItem('token');
         setUser(null);
@@ -61,7 +86,7 @@ export const AuthProvider = ({ children }) => {
         if (!user || user.role !== 'JOB_SEEKER') return;
 
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/notifications/toggle-subscription', {
+        const response = await fetch(`${API_BASE_URL}/notifications/toggle-subscription`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

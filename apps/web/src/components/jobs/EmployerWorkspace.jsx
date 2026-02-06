@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Users, MapPin, Clock } from 'lucide-react';
-import ApplicantManagementModal from './ApplicantManagementModal';
 import { Plus, Users, MapPin, Clock, ChevronRight } from 'lucide-react';
+import ApplicantManagementModal from './ApplicantManagementModal';
+import CreateJobModal from './CreateJobModal';
+import { apiFetch } from '../../lib/api';
 
 const EmployerWorkspace = () => {
     const [jobs, setJobs] = useState([]);
@@ -10,11 +11,8 @@ const EmployerWorkspace = () => {
     const [loading, setLoading] = useState(true);
 
     const fetchMyJobs = async () => {
-        const token = localStorage.getItem('token');
         try {
-            const res = await fetch('http://localhost:3000/jobs/my-jobs', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await apiFetch('/jobs/my-jobs');
             const data = await res.json();
             setJobs(data);
         } catch (err) {

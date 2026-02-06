@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, FileText, MapPin, CheckCircle, Upload, Save } from 'lucide-react';
+import { apiFetch } from '../../lib/api';
 
 const SeekerProfile = () => {
     const [profile, setProfile] = useState(null);
@@ -8,11 +9,8 @@ const SeekerProfile = () => {
     const [uploading, setUploading] = useState(false);
 
     const fetchProfile = async () => {
-        const token = localStorage.getItem('token');
         try {
-            const res = await fetch('http://localhost:3000/profile', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await apiFetch('/profile');
             const data = await res.json();
             setProfile(data);
         } catch (err) {
@@ -29,13 +27,11 @@ const SeekerProfile = () => {
     const handleUpdate = async (e) => {
         e.preventDefault();
         setSaving(true);
-        const token = localStorage.getItem('token');
         try {
-            await fetch('http://localhost:3000/profile', {
+            await apiFetch('/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(profile)
             });
@@ -52,14 +48,12 @@ const SeekerProfile = () => {
         if (!file) return;
 
         setUploading(true);
-        const token = localStorage.getItem('token');
         const formData = new FormData();
         formData.append('resume', file);
 
         try {
-            await fetch('http://localhost:3000/profile/resume', {
+            await apiFetch('/profile/resume', {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
                 body: formData
             });
             fetchProfile();

@@ -1,17 +1,30 @@
 const jobsService = require('../../services/jobs.service');
 const prisma = require('../../prisma');
 const notificationService = require('../../services/notification.service');
+const { z } = require('zod');
+
+const createJobSchema = z.object({
+    title: z.string().min(3),
+    description: z.string().min(10),
+    skills: z.array(z.string().min(1)).default([]),
+    location: z.string().min(2),
+    type: z.string().min(2),
+    salaryRange: z.string().optional()
+});
+
+const updateStatusSchema = z.object({
+    status: z.enum(['REVIEWED', 'SHORTLISTED', 'INTERVIEWING', 'ACCEPTED', 'REJECTED'])
+});
+
+const requireAuth = async (request, reply) => {
+    try {
+        await request.jwtVerify();
+    } catch (err) {
+        return reply.status(401).send({ error: 'Authentication required' });
+    }
+};
 
 module.exports = async function (fastify, opts) {
-    // Authentication hook
-    fastify.addHook('preHandler', async (request, reply) => {
-        try {
-            await request.jwtVerify();
-        } catch (err) {
-            reply.status(401).send({ error: 'Authentication required' });
-        }
-    });
-
     // GET /jobs - Public/Seeker Browse
     fastify.get('/', async (request, reply) => {
         const filters = request.query;
@@ -19,7 +32,7 @@ module.exports = async function (fastify, opts) {
     });
 
     // POST /jobs - Create Job (Employers only)
-    fastify.post('/', async (request, reply) => {
+    fastify.post('/', { preHandler: requireAuth }, async (request, reply) => {
         const { id: userId, role } = request.user;
         if (role !== 'EMPLOYER') {
             return reply.status(403).send({ error: 'Only employers can post jobs' });
@@ -30,12 +43,12 @@ module.exports = async function (fastify, opts) {
             return reply.status(403).send({ error: 'Your employer account must be approved to post jobs' });
         }
 
-        const jobData = request.body;
+        const jobData = createJobSchema.parse(request.body);
         return await jobsService.createJob(employer.id, jobData);
     });
 
     // GET /jobs/my-jobs - Employer's own jobs
-    fastify.get('/my-jobs', async (request, reply) => {
+    fastify.get('/my-jobs', { preHandler: requireAuth }, async (request, reply) => {
         const { id: userId, role } = request.user;
         if (role !== 'EMPLOYER') {
             return reply.status(403).send({ error: 'Access denied' });
@@ -48,7 +61,7 @@ module.exports = async function (fastify, opts) {
     });
 
     // POST /jobs/:id/apply - Job Seeker Apply
-    fastify.post('/:id/apply', async (request, reply) => {
+    fastify.post('/:id/apply', { preHandler: requireAuth }, async (request, reply) => {
         const { id: userId, role } = request.user;
         if (role !== 'JOB_SEEKER') {
             return reply.status(403).send({ error: 'Only job seekers can apply' });
@@ -83,7 +96,7 @@ module.exports = async function (fastify, opts) {
     });
 
     // GET /jobs/:id/applicants - Employer view applicants
-    fastify.get('/:id/applicants', async (request, reply) => {
+    fastify.get('/:id/applicants', { preHandler: requireAuth }, async (request, reply) => {
         const { id: userId, role } = request.user;
         if (role !== 'EMPLOYER') {
             return reply.status(403).send({ error: 'Access denied' });
@@ -99,14 +112,14 @@ module.exports = async function (fastify, opts) {
         }
     });
     // PATCH /jobs/applications/:id/status
-    fastify.patch('/applications/:id/status', async (request, reply) => {
+    fastify.patch('/applications/:id/status', { preHandler: requireAuth }, async (request, reply) => {
         const { id: userId, role } = request.user;
         if (role !== 'EMPLOYER') return reply.status(403).send({ error: 'Access denied' });
 
         const employer = await prisma.employer.findUnique({ where: { userId } });
         if (!employer) return reply.status(404).send({ error: 'Employer profile not found' });
 
-        const { status } = request.body;
+        const { status } = updateStatusSchema.parse(request.body);
         try {
             const updated = await jobsService.updateApplicationStatus(employer.id, request.params.id, status);
 

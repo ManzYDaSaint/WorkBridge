@@ -2,26 +2,26 @@ const notificationService = require('../../services/notification.service');
 const prisma = require('../../prisma');
 
 module.exports = async function (fastify, opts) {
-    fastify.addHook('preHandler', async (request, reply) => {
+    const requireAuth = async (request, reply) => {
         try {
             await request.jwtVerify();
         } catch (err) {
-            reply.status(401).send({ error: 'Authentication required' });
+            return reply.status(401).send({ error: 'Authentication required' });
         }
-    });
+    };
 
     // GET /notifications
-    fastify.get('/', async (request, reply) => {
+    fastify.get('/', { preHandler: requireAuth }, async (request, reply) => {
         return await notificationService.getNotifications(request.user.id);
     });
 
     // PATCH /notifications/:id/read
-    fastify.patch('/:id/read', async (request, reply) => {
+    fastify.patch('/:id/read', { preHandler: requireAuth }, async (request, reply) => {
         return await notificationService.markAsRead(request.params.id, request.user.id);
     });
 
     // POST /notifications/toggle-subscription
-    fastify.post('/toggle-subscription', async (request, reply) => {
+    fastify.post('/toggle-subscription', { preHandler: requireAuth }, async (request, reply) => {
         const user = await prisma.user.findUnique({
             where: { id: request.user.id },
             include: { jobSeeker: true }

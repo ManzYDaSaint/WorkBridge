@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, PlusCircle } from 'lucide-react';
+import { apiFetchJson } from '../../lib/api';
 
 const CreateJobModal = ({ onClose, onCreated }) => {
     const [formData, setFormData] = useState({
@@ -15,18 +16,12 @@ const CreateJobModal = ({ onClose, onCreated }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const token = localStorage.getItem('token');
-
         try {
-            const res = await fetch('http://localhost:3000/jobs', {
+            const res = await apiFetchJson('/jobs', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
                 body: JSON.stringify({
                     ...formData,
-                    skills: formData.skills.split(',').map(s => s.trim()),
+                    skills: formData.skills.split(',').map(s => s.trim()).filter(Boolean),
                 }),
             });
 

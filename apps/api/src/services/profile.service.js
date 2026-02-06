@@ -1,10 +1,10 @@
 const prisma = require('../prisma');
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
-    process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.SUPABASE_KEY || 'placeholder'
-);
+const hasSupabaseConfig = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_KEY);
+const supabase = hasSupabaseConfig
+    ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+    : null;
 
 class ProfileService {
     async getProfile(userId) {
@@ -36,6 +36,9 @@ class ProfileService {
     }
 
     async uploadResume(userId, file) {
+        if (!supabase) {
+            throw new Error('Supabase is not configured');
+        }
         const fileName = `resumes/${userId}-${Date.now()}.pdf`;
         const { data, error } = await supabase.storage
             .from(process.env.SUPABASE_BUCKET || 'resumes')

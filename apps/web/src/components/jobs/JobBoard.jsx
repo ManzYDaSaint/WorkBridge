@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Search, MapPin, Briefcase, ChevronRight, CheckCircle } from 'lucide-react';
+import { apiFetch } from '../../lib/api';
 
 const JobBoard = () => {
     const [jobs, setJobs] = useState([]);
@@ -8,7 +9,7 @@ const JobBoard = () => {
 
     const fetchJobs = async () => {
         try {
-            const res = await fetch('http://localhost:3000/jobs');
+            const res = await apiFetch('/jobs');
             const data = await res.json();
             setJobs(data);
         } catch (err) {
@@ -27,9 +28,8 @@ const JobBoard = () => {
         if (!token) return alert('Please login to apply');
 
         try {
-            const res = await fetch(`http://localhost:3000/jobs/${jobId}/apply`, {
+            const res = await apiFetch(`/jobs/${jobId}/apply`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
             });
 
             if (res.ok) {

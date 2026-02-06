@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { X, CheckCircle, Clock, User, FileText, Star, Mail, MapPin } from 'lucide-react';
+import { apiFetchJson } from '../../lib/api';
 
 const ApplicantManagementModal = ({ job, onClose }) => {
     const [applicants, setApplicants] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchApplicants = async () => {
-        const token = localStorage.getItem('token');
         try {
-            const res = await fetch(`http://localhost:3000/jobs/${job.id}/applicants`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await apiFetch(`/jobs/${job.id}/applicants`);
             const data = await res.json();
             setApplicants(data);
         } catch (err) {
@@ -25,14 +23,9 @@ const ApplicantManagementModal = ({ job, onClose }) => {
     }, [job.id]);
 
     const updateStatus = async (applicationId, status) => {
-        const token = localStorage.getItem('token');
         try {
-            const res = await fetch(`http://localhost:3000/jobs/applications/${applicationId}/status`, {
+            const res = await apiFetchJson(`/jobs/applications/${applicationId}/status`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
                 body: JSON.stringify({ status }),
             });
             if (res.ok) fetchApplicants();

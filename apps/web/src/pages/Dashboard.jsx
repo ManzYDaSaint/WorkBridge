@@ -1,13 +1,16 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Navigate, LogOut, ShieldAlert, Settings } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
+import { LogOut, ShieldAlert, Settings } from 'lucide-react';
 import JobBoard from '../components/jobs/JobBoard';
 import EmployerWorkspace from '../components/jobs/EmployerWorkspace';
 import NotificationDropdown from '../components/notifications/NotificationDropdown';
 import SeekerProfile from '../components/profile/SeekerProfile';
 import MobileNav from '../components/layout/MobileNav';
+import { apiFetch } from '../lib/api';
 
 const Dashboard = () => {
+    const { user, loading, logout, toggleSubscription } = useAuth();
     const [activeTab, setActiveTab] = React.useState('jobs'); // jobs, profile, notifications
     const [unreadCount, setUnreadCount] = React.useState(0);
 
@@ -15,9 +18,7 @@ const Dashboard = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
         try {
-            const res = await fetch('http://localhost:3000/notifications', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await apiFetch('/notifications');
             const data = await res.json();
             const unread = data.filter(n => !n.isRead).length;
             setUnreadCount(unread);
@@ -116,12 +117,12 @@ const Dashboard = () => {
                                     </div>
                                     <button
                                         onClick={toggleSubscription}
-                                        className={`px-8 py-3 rounded-xl font-bold transition ${user.jobSeeker.isSubscribed
+                                        className={`px-8 py-3 rounded-xl font-bold transition ${user.jobSeeker?.isSubscribed
                                             ? 'bg-blue-500 text-white border-2 border-blue-400'
                                             : 'bg-white text-blue-600 shadow-xl'
                                             }`}
                                     >
-                                        {user.jobSeeker.isSubscribed ? 'Disable Alerts' : 'Enable Mobile Alerts'}
+                                        {user.jobSeeker?.isSubscribed ? 'Disable Alerts' : 'Enable Mobile Alerts'}
                                     </button>
                                 </div>
                             </>

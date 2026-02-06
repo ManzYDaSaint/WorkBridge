@@ -31,12 +31,16 @@ model User {
   phone     String?  @unique
   password  String
   role      Role     @default(JOB_SEEKER)
+  refreshTokenHash String?
+  refreshTokenExpiresAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   jobSeeker JobSeeker?
   employer  Employer?
   notifications Notification[]
+  payments Payment[]
+  auditLogs AuditLog[]
 }
 
 model JobSeeker {
@@ -51,6 +55,8 @@ model JobSeeker {
   isSubscribed Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  applications Application[]
 }
 
 model Employer {
@@ -121,4 +127,22 @@ model Notification {
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  action      String
+  method      String
+  path        String
+  statusCode  Int
+  ip          String?
+  userAgent   String?
+  requestId   String?
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
 }
