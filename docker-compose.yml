@@ -1,17 +1,94 @@
 version: "3.8"
 
 services:
-  db:
+  db-auth:
     image: postgres:14-alpine
     restart: always
     environment:
-      - POSTGRES_USER=workbridge
-      - POSTGRES_PASSWORD=workbridge_pass
-      - POSTGRES_DB=workbridge_db
+      POSTGRES_USER: workbridge_auth
+      POSTGRES_PASSWORD: workbridge_auth_pass
+      POSTGRES_DB: workbridge_auth_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workbridge_auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-profile:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: workbridge_profile
+      POSTGRES_PASSWORD: workbridge_profile_pass
+      POSTGRES_DB: workbridge_profile_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_profile_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workbridge_profile"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-jobs:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: workbridge_jobs
+      POSTGRES_PASSWORD: workbridge_jobs_pass
+      POSTGRES_DB: workbridge_jobs_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_jobs_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workbridge_jobs"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-notifications:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: workbridge_notif
+      POSTGRES_PASSWORD: workbridge_notif_pass
+      POSTGRES_DB: workbridge_notif_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_notif_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workbridge_notif"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-admin:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: workbridge_admin
+      POSTGRES_PASSWORD: workbridge_admin_pass
+      POSTGRES_DB: workbridge_admin_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_admin_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workbridge_admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  postgres_data:
+  postgres_auth_data:
+  postgres_profile_data:
+  postgres_jobs_data:
+  postgres_notif_data:
+  postgres_admin_data:

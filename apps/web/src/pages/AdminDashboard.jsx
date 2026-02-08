@@ -200,9 +200,9 @@ const AdminDashboard = () => {
                                     onClick={() => setAuditFilters({ userId: '', action: '', method: '', path: '', statusCode: '', minStatus: '400', maxStatus: '', from: '', to: '' })}
                                     className="px-3 py-2 border rounded"
                                 >
-                                    Errors (>=400)
+                                    Errors (&gt;=400)
                                 </button>
-                                <button
+                                <button 
                                     onClick={() => setAuditFilters({ userId: '', action: '', method: '', path: '/admin', statusCode: '', minStatus: '', maxStatus: '', from: '', to: '' })}
                                     className="px-3 py-2 border rounded"
                                 >

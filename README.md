@@ -1,8 +1,22 @@
 # WorkBridge
 
-## MVP Product & Development Guide
+> **Purpose**: Single source of truth for building the WorkBridge MVP. Follow step by step without overthinking scope.
 
-> **Purpose**: This document is a single source of truth for building the WorkBridge MVP. Follow it step by step without overthinking scope.
+---
+
+## Table of Contents
+
+1. [Product Vision](#1-product-vision)
+2. [Core Principles](#2-core-principles)
+3. [User Roles](#3-user-roles)
+4. [MVP Features](#4-mvp-features)
+5. [Tech Stack & Architecture](#5-tech-stack--architecture)
+6. [Getting Started](#6-getting-started)
+7. [Environment Setup](#7-environment-setup)
+8. [Contributing](#8-contributing)
+9. [Security](#9-security)
+10. [Non-Goals & Roadmap](#10-non-goals--roadmap)
+11. [DevOps Build Plan](#11-devops-build-plan)
 
 ---
 
@@ -10,9 +24,9 @@
 
 **WorkBridge** is a mobile-first job marketplace that simplifies job applications by:
 
-* Allowing **verified employers** to post quality jobs
-* Allowing **job seekers** to instantly discover and apply for relevant opportunities
-* Gradually introducing **AI-powered matching** to personalize job discovery
+- Allowing **verified employers** to post quality jobs
+- Allowing **job seekers** to instantly discover and apply for relevant opportunities
+- Gradually introducing **AI-powered matching** to personalize job discovery
 
 Primary market: **Malawi (initially)**
 
@@ -20,387 +34,387 @@ Primary market: **Malawi (initially)**
 
 ## 2. Core Principles (DO NOT BREAK THESE)
 
-* Job seekers must have **instant access** (no hard wait-list)
-* Employers must be **verified / approved** before posting
-* Mobile-first UX (phone screens first)
-* Keep MVP simple, reliable, and fast
-* Monetize employers first, not job seekers
+- Job seekers must have **instant access** (no hard wait-list)
+- Employers must be **verified / approved** before posting
+- Mobile-first UX (phone screens first)
+- Keep MVP simple, reliable, and fast
+- Monetize employers first, not job seekers
 
 ---
 
 ## 3. User Roles
 
-### 3.1 Job Seeker
-
-* Free signup and usage
-* Can browse and apply for jobs
-* Can receive job recommendations
-
-### 3.2 Employer
-
-* Must be approved before posting jobs
-* Pays for job postings and boosts (later)
-
-### 3.3 Admin
-
-* Approves employers
-* Manages jobs and users
-* Oversees platform integrity
+| Role | Capabilities |
+|------|--------------|
+| **Job Seeker** | Free signup, browse/apply for jobs, receive recommendations |
+| **Employer** | Must be approved before posting; pays for job postings (later) |
+| **Admin** | Approves employers, manages jobs/users, oversees platform integrity |
 
 ---
 
-## 4. MVP Features (Required)
+## 4. MVP Features
 
-### 4.1 Authentication & Accounts
+### Authentication & Profiles
 
-#### Job Seeker
+- **Job Seeker**: Sign up (email/phone), login/logout, profile (full name, location, skills, resume)
+- **Employer**: Sign up, company profile (name, industry, location); status `pending | approved | rejected`
 
-* Sign up (email / phone)
-* Login / logout
-* Profile creation:
+### Employer Verification Flow
 
-  * Full name
-  * Location
-  * Skills (tags)
-  * Experience level
-  * Preferred job types
+1. Employer signs up → status = `pending`
+2. Admin reviews → approves/rejects
+3. Approved employers can post jobs
 
-#### Employer
+### Job Management
 
-* Sign up
-* Company profile:
+- **Employer**: Create jobs (title, description, skills, location, type, salary range), edit/deactivate, view applicants
+- **Job Seeker**: Browse, search & filter (location, type, skills), apply
 
-  * Company name
-  * Industry
-  * Location
-  * Contact details
-* Status: `pending | approved | rejected`
+### Notifications
+
+- In-app notifications
+- Email notifications (Resend)
 
 ---
 
-## 5. Employer Wait-list & Verification
-
-### Employer Flow
-
-1. Employer signs up
-2. Account status = `pending`
-3. Admin reviews employer
-4. Employer is approved
-5. Employer can now post jobs
-
-### Verification Criteria (MVP)
-
-* Company name exists
-* Contact info is valid
-* Not previously flagged
-
----
-
-## 6. Job Management
-
-### Employer Capabilities
-
-* Create job post:
-
-  * Job title
-  * Description
-  * Required skills
-  * Location
-  * Job type (full-time, part-time, contract)
-  * Salary range (optional)
-* Edit / deactivate job
-* View applicants
-
-### Job Seeker Capabilities
-
-* Browse jobs
-* Search & filter:
-
-  * Location
-  * Job type
-  * Skills
-* Apply to job
-
----
-
-## 7. Job Application Flow
-
-1. Job seeker clicks "Apply"
-2. Application is created
-3. Employer is notified
-4. Employer views applicant profile
-
-No complex CV parsing in MVP.
-
----
-
-## 8. Matching Logic (MVP – Rule-Based)
-
-**No advanced AI in MVP**
-
-Matching factors:
-
-* Skill overlap
-* Location match
-* Job type preference
-
-Result:
-
-* Jobs ranked by relevance
-
----
-
-## 9. AI Matching (Post-MVP / Feature Wait-list)
-
-### AI Features (Locked Initially)
-
-* Personalized job feed
-* Smart ranking
-* Learning from:
-
-  * Clicks
-  * Applications
-  * Skips
-
-### AI Rollout Strategy
-
-* Feature-based wait-list
-* Enable in small batches
-
----
-
-## 10. Notifications
-
-### MVP Notifications
-
-* In-app notifications
-* Email notifications
-
-### Later
-
-* Push notifications
-* SMS / WhatsApp alerts (paid)
-
----
-
-## 11. Admin Dashboard
-
-### Admin Capabilities
-
-* Approve / reject employers
-* View all jobs
-* Remove fake or expired jobs
-* View basic metrics:
-
-  * Total users
-  * Active jobs
-  * Applications
-
----
-
-## 12. Monetization Strategy (MVP-Ready)
-
-### Employer Monetization
-
-* Pay-per-job posting
-* Featured job boosts
-* Verified employer badge
-
-### Job Seeker Monetization (Optional / Later)
-
-* CV boost
-* Profile highlighting
-* Premium alerts
-
----
-
-## 13. Payments (Malawi-first)
-
-Required support:
-
-* Airtel Money
-* TNM Mpamba
-
-Optional later:
-
-* Bank transfer
-* Card payments
-
----
-
----
-
-## 14. Tech Stack
-
-### Frontend
-- **React + Vite**: Mobile-first architecture.
-- **Tailwind CSS**: Utility-first styling.
-- **PWA-ready**: Designed for offline-first capabilities.
-
-### Backend
-- **Node.js + Fastify**: High-performance, low-overhead web framework.
-- **REST API**: Standardized JSON endpoints.
-
-### Database & Auth
-- **PostgreSQL**: Relational data integrity.
-- **JWT**: Stateless session management.
-
----
-
-## 15. System Architecture
-
-```mermaid
-graph TD
-    subgraph Client_Layer["Client Layer (Mobile First)"]
-        PWA["React PWA (Vite)"]
-    end
-
-    subgraph API_Layer["API Layer"]
-        Fastify["Fastify Server (Node.js)"]
-        Auth["JWT Auth Service"]
-    end
-
-    subgraph Data_Layer["Data Layer"]
-        DB[(PostgreSQL)]
-    end
-
-    subgraph Services["Services"]
-        Payment["Payment Gateway (Airtel/TNM)"]
-        Email["Email Service (SMTP/Resend)"]
-    end
-
-    PWA <-->|REST API / JWT| Fastify
-    Fastify <--> Auth
-    Fastify <--> DB
-    Fastify <--> Payment
-    Fastify <--> Email
+## 5. Tech Stack & Architecture
+
+### Stack
+
+- **Frontend**: React + Vite, Tailwind CSS, PWA-ready
+- **Backend**: Node.js + Fastify (microservices)
+- **Database**: PostgreSQL (one per service)
+- **Auth**: JWT stateless sessions
+
+### Microservices Architecture
+
+```
+                    ┌─────────────────┐
+                    │   Frontend      │  Port 5173
+                    └────────┬────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │  API Gateway    │  Port 3000
+                    └────────┬────────┘
+                             │
+        ┌────────────────────┼────────────────────┐
+        ▼                    ▼                    ▼
+┌───────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│ Auth (3001)   │  │ Profile (3002)  │  │ Jobs (3003)     │
+│ auth_db       │  │ profile_db      │  │ jobs_db         │
+└───────────────┘  └─────────────────┘  └─────────────────┘
+        │                    │                    │
+        ▼                    ▼                    ▼
+┌───────────────┐  ┌─────────────────┐
+│Notifications  │  │ Admin (3005)    │
+│ (3004) notif  │  │ admin_db        │
+└───────────────┘  └─────────────────┘
 ```
 
+| Service | Port | Database | Responsibility |
+|---------|------|----------|----------------|
+| API Gateway | 3000 | - | Routes requests to backend services |
+| Auth Service | 3001 | auth_db | Users, JWT, login/register |
+| Profile Service | 3002 | profile_db | JobSeeker & Employer profiles |
+| Jobs Service | 3003 | jobs_db | Jobs, Applications |
+| Notifications Service | 3004 | notif_db | In-app notifications |
+| Admin Service | 3005 | admin_db | Admin dashboard, audit logs |
+| AI Matching Service | 3006 | - | Rule-based candidate matching |
+
+### API Gateway Routing
+
+| Path | Target |
+|------|--------|
+| `/login`, `/register`, `/refresh`, `/logout` | Auth |
+| `/profile/*` | Profile |
+| `/notifications/toggle-subscription` | Profile |
+| `/notifications/*` | Notifications |
+| `/jobs/*` | Jobs |
+| `/admin/*` | Admin |
+| `/ai/*` | AI Matching |
+| `/health` | Gateway |
+
+### Shortlisting & Notifications
+
+- Shortlist creation is queued and runs asynchronously after job creation.
+- Employers can trigger a rebuild or notify selected candidates:
+  - `POST /jobs/:id/shortlist/rebuild`
+  - `POST /jobs/:id/shortlist/notify` with `{ "seekerIds": ["..."] }`
+
 ---
 
-## 16. Security & Compliance
-
-WorkBridge is built with enterprise-grade security principles:
-- **Data Protection**: All sensitive data (PII) is encrypted at rest.
-- **Authentication**: JWT-based stateless auth with short-lived tokens and secure refresh mechanisms.
-- **Authorization**: Role-Based Access Control (RBAC) for Seekers, Employers, and Admins.
-- **Audit Trails**: Critical actions (job deletions, status changes) are logged in the `audit_logs` table.
-- **Input Validation**: Strict schema validation using JSON Schema/TypeBox.
-
----
-
-## 17. Getting Started (DX)
+## 6. Getting Started
 
 ### Prerequisites
-- **Node.js**: v18+ 
-- **PostgreSQL**: v14+
-- **Package Manager**: npm
 
-### Local Setup
-1. **Clone the repo**:
-   ```bash
-   git clone https://github.com/ManzyDaSaint/WorkBridge.git
-   cd WorkBridge
-   ```
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-3. **Environment Setup**:
-   Create a `.env` file based on `.env.example`.
-4. **Database Migration**:
-   ```bash
-   npm run migrate
-   ```
-5. **Run Development Server**:
-   ```bash
-   npm run dev
-   ```
+- Node.js v18+
+- PostgreSQL v14+ (or Docker)
+- Docker Desktop (Windows) with WSL2 backend enabled
+- npm
 
----
+### Quick Start
 
-## 18. Infrastructure & Operations
+```bash
+# 1. Clone & install
+git clone https://github.com/ManzyDaSaint/WorkBridge.git
+cd WorkBridge
+npm run install:all
 
-### CI/CD Pipeline
-- **GitHub Actions**: Automated linting, testing, and deployment.
-- **Automated Testing**: Pre-push hooks for unit tests.
+# 2. Start databases
+docker-compose up -d
 
-### Deployment
-- **Hosting**: Scalable cloud hosting (e.g., AWS, Render).
-- **SSL/TLS**: Mandatory encryption for all traffic.
+# 3. Configure environment (see §7)
+# Copy env.example → .env in each service under apps/
 
-### Observability
-- **Error Tracking**: Sentry integration for real-time crash reporting.
-- **Logging**: Structured JSON logging for easy parsing and monitoring.
-- **Health Checks**: `/health` endpoint for uptime monitoring.
+# 4. Generate Prisma & migrate
+npm run generate:all
+npm run migrate:all
 
----
+# 5. Seed admin user (optional)
+cd apps/auth-service && ADMIN_EMAIL=admin@workbridge.me ADMIN_PASSWORD=YourPass npm run seed:admin && cd ../..
 
-## 19. Database Core Tables
+# 6. Start all backend services
+npm run dev
 
-* users
-* job_seekers
-* employers
-* jobs
-* applications
-* waitlist
-* notifications
-* audit_logs
+# 7. In another terminal: start frontend
+npm run dev:web
+```
+
+### Run Individual Services
+
+- `npm run dev:gateway` — API Gateway (3000)
+- `npm run dev:auth` — Auth Service (3001)
+- `npm run dev:profile` — Profile Service (3002)
+- `npm run dev:jobs` — Jobs Service (3003)
+- `npm run dev:notifications` — Notifications Service (3004)
+- `npm run dev:admin` — Admin Service (3005)
+- `npm run dev:ai` — AI Matching Service (3006)
+- `npm run dev:web` — Frontend (5173)
+
+### PWA / Offline Support
+
+- The web app uses a PWA service worker for offline and unstable networks.
+- Build with `npm run build --prefix apps/web` to generate the service worker.
 
 ---
 
-## 20. Non-Goals (DO NOT BUILD IN MVP)
+## 7. Environment Setup
 
-* Full AI chatbot
-* Resume parsing engine
-* Video interviews
-* Complex analytics
-* Multi-country support
+Copy `env.example` to `.env` in each service directory (`apps/*/`).
 
----
+**Required (all services):**
 
-## 21. Development Phases
+- `JWT_SECRET` — must be identical across all services
+- `DATABASE_URL` — per-service PostgreSQL connection string
 
-### Phase 1 (Weeks 1–2): Foundation
-- Auth & RBAC
-- User Roles & Profile Management
-- Employer Approval Workflow
+**Example URLs (local Docker):**
 
-### Phase 2 (Weeks 3–4): Core Interaction
-- Job Lifecycle (Post, Edit, Deactivate)
-- Application Flow
-- Rule-based Matching logic
-- Notification System
+| Service | DATABASE_URL |
+|---------|--------------|
+| auth-service | `postgresql://workbridge_auth:workbridge_auth_pass@localhost:5433/workbridge_auth_db` |
+| profile-service | `postgresql://workbridge_profile:workbridge_profile_pass@localhost:5434/workbridge_profile_db` |
+| jobs-service | `postgresql://workbridge_jobs:workbridge_jobs_pass@localhost:5435/workbridge_jobs_db` |
+| notifications-service | `postgresql://workbridge_notif:workbridge_notif_pass@localhost:5436/workbridge_notif_db` |
+| admin-service | `postgresql://workbridge_admin:workbridge_admin_pass@localhost:5437/workbridge_admin_db` |
 
-### Phase 3 (Week 5): Polish & Launch
-- Admin Dashboard for platform management
-- Financial Gateway integration (Airtel/TNM)
-- UX Polish & Performance Optimization
-- Public MVP launch
+**Inter-service URLs** (when services run on localhost):
+
+- `AUTH_SERVICE_URL=http://localhost:3001`
+- `PROFILE_SERVICE_URL=http://localhost:3002`
+- `JOBS_SERVICE_URL=http://localhost:3003`
+- `NOTIFICATIONS_SERVICE_URL=http://localhost:3004`
+- `ADMIN_SERVICE_URL=http://localhost:3005`
 
 ---
 
-## 22. Success Metrics & Launch Checklist
+## 8. Contributing
 
-### Launch Checklist
-- [ ] 20-50 verified employers onboarded
-- [ ] Payment gateway integration verified
-- [ ] SSL certs and production security audit
-- [ ] Feedback channel active
+### Workflow
 
-### Success Metric
-> **North Star**: Daily Active Applications (DAA) and Employer Retention rate. If employers post and seekers apply, the gap is bridged.
+1. Fork the repo and create a branch from `main`
+2. Commit with descriptive messages
+3. Open a Pull Request against `main`
+
+### Branch Naming
+
+- `feature/short-description` — New features
+- `fix/short-description` — Bug fixes
+- `docs/short-description` — Documentation
+- `refactor/short-description` — Refactoring
+
+### Pull Request Standards
+
+- Clear title and summary
+- Link related issues
+- Pass tests and linting
+- At least one maintainer approval
+
+### Commit Messages
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/): `feat: add X`, `fix: resolve Y`, etc.
 
 ---
 
-## 23. Long-Term Vision
+## 9. Security
 
-* **Advanced AI**: Deep learning for hyper-personalized matching.
-* **Service Ecosystem**: Recruitment-as-a-Service (RaaS) and native mobile apps.
-* **Regional Expansion**: Scaling beyond Malawi to neighboring markets.
+- **Authentication**: JWT with short-lived tokens and secure refresh
+- **Authorization**: RBAC (Seekers, Employers, Admins)
+- **Audit Trails**: Critical actions logged in `admin_db`
+- **Input Validation**: Schema validation (Zod)
+
+**Security issues**: Do not open public issues. Email security@workbridge.me (placeholder).
 
 ---
 
-**End of Document**
+## 10. Non-Goals & Roadmap
+
+**Not in MVP**
+
+- Full AI chatbot
+- Resume parsing engine
+- Video interviews
+- Complex analytics
+- Multi-country support
+
+**Post-MVP**
+
+- AI-powered job matching
+- Push notifications, SMS/WhatsApp
+- Payment gateways (Airtel Money, TNM Mpamba)
+
+---
 
 > Build with focus. Scale with intent.
+
+---
+
+## 11. DevOps Build Plan
+
+This section implements the DevOps recommendations **one by one**. Complete each step before starting the next.
+
+### Step 1: Containerize All Services
+
+**Goal:** Build/run every service (gateway, auth, profile, jobs, notifications, admin, web) with Docker.
+
+**What to add**
+
+- `Dockerfile` for each backend service under `apps/*-service/`
+- `Dockerfile` for `apps/api-gateway/`
+- `Dockerfile` for `apps/web/`
+- A new `docker-compose.app.yml` that starts all services plus databases
+
+**Why this is first**
+
+- Creates a consistent runtime artifact
+- Unblocks local, staging, and production parity
+
+**Definition of Done**
+
+- `docker compose -f docker-compose.yml -f docker-compose.app.yml up` starts all services
+- API gateway can route to all services
+- Web app loads against the gateway
+
+**How to run (Docker Compose only)**
+
+```bash
+# Start databases
+docker compose -f docker-compose.yml up -d
+
+# Start all apps
+docker compose -f docker-compose.yml -f docker-compose.app.yml up --build
+```
+
+**Notes**
+
+- The app compose file injects container-friendly `DATABASE_URL` values and service URLs.
+- Prisma `generate` and `migrate` run on container start for services that use Prisma.
+
+---
+
+### Step 2: CI Pipeline (Build + Test)
+
+**Goal:** Every push runs tests and builds artifacts.
+
+**What to add**
+
+- A CI pipeline (GitHub Actions or equivalent) to run:
+  - `npm run install:all`
+  - Prisma `generate` + `migrate` per service against a CI database
+  - Web tests (when present)
+  - `apps/web` build
+
+**Definition of Done**
+
+- PRs show CI status
+- Failed builds block merge
+
+**Current implementation**
+
+- GitHub Actions workflow: `.github/workflows/ci.yml`
+- Runs on Ubuntu with a Postgres service container
+
+---
+
+### Step 3: Environment & Secrets Strategy
+
+**Goal:** Separate dev/staging/prod configs and remove secrets from local `.env` for production.
+
+**What to add**
+
+- Document environment variables per service
+- Use a secrets manager in production (AWS Secrets Manager, Vault, etc.)
+- Add safe defaults for local dev
+
+**Definition of Done**
+
+- `.env` only used for local dev
+- Production secrets never committed
+
+**Current implementation**
+
+- Environment variable reference: `docs/env.md`
+- Secrets strategy guidance: `docs/secrets.md`
+
+---
+
+### Step 4: Observability (Logs + Metrics)
+
+**Goal:** Production visibility into failures and performance.
+
+**What to add**
+
+- Structured logging (JSON)
+- Metrics endpoint (Prometheus-compatible)
+- Tracing (OpenTelemetry)
+
+**Definition of Done**
+
+- Logs, metrics, and traces work in local compose
+- Basic dashboards exist for latency/errors
+
+**Current implementation**
+
+- Observability guidance: `docs/observability.md`
+- Beginner-friendly local stack: `docker-compose.observability.yml`
+- Each service exposes `/metrics` and writes logs to `apps/<service>/logs/*.log`
+
+---
+
+### Step 5: Infrastructure as Code
+
+**Goal:** Fully reproducible infrastructure.
+
+**What to add**
+
+- IaC (Terraform/Pulumi) for databases, networking, and compute
+- Staging and production environments
+
+**Definition of Done**
+
+- A new environment can be created from scratch with IaC
+
+**Current implementation**
+
+- IaC starter guidance: `docs/iac.md`
+- Render Blueprints: `render.staging.yaml`, `render.production.yaml`

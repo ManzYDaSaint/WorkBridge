@@ -1,0 +1,21 @@
+{
+  "name": "workbridge",
+  "private": true,
+  "scripts": {
+    "dev:gateway": "cd apps/api-gateway && npm run dev",
+    "dev:auth": "cd apps/auth-service && npm run dev",
+    "dev:profile": "cd apps/profile-service && npm run dev",
+    "dev:jobs": "cd apps/jobs-service && npm run dev",
+    "dev:notifications": "cd apps/notifications-service && npm run dev",
+    "dev:admin": "cd apps/admin-service && npm run dev",
+    "dev:ai": "cd apps/ai-matching-service && npm run dev",
+    "dev:web": "cd apps/web && npm run dev",
+    "install:all": "npm install && cd apps/auth-service && npm install && cd ../profile-service && npm install && cd ../jobs-service && npm install && cd ../notifications-service && npm install && cd ../admin-service && npm install && cd ../api-gateway && npm install && cd ../ai-matching-service && npm install && cd ../web && npm install",
+    "migrate:all": "npm run migrate --prefix apps/auth-service && npm run migrate --prefix apps/profile-service && npm run migrate --prefix apps/jobs-service && npm run migrate --prefix apps/notifications-service && npm run migrate --prefix apps/admin-service",
+    "generate:all": "npm run generate --prefix apps/auth-service && npm run generate --prefix apps/profile-service && npm run generate --prefix apps/jobs-service && npm run generate --prefix apps/notifications-service && npm run generate --prefix apps/admin-service",
+    "dev": "concurrently -n gw,auth,profile,jobs,notif,admin,ai -c blue,green,yellow,magenta,cyan,red,white \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:profile\" \"npm run dev:jobs\" \"npm run dev:notifications\" \"npm run dev:admin\" \"npm run dev:ai\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

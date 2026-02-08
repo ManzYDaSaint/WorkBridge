@@ -1,0 +1,66 @@
+require('dotenv').config();
+const fastifyFactory = require('fastify');
+const fs = require('fs');
+const path = require('path');
+const pino = require('pino');
+const client = require('prom-client');
+
+const buildServer = (opts = {}) => {
+  const logDir = path.join(__dirname, '..', 'logs');
+  fs.mkdirSync(logDir, { recursive: true });
+  const logger = pino(
+    { level: process.env.LOG_LEVEL || 'info' },
+    pino.destination({ dest: path.join(logDir, 'profile-service.log'), sync: false })
+  );
+
+  const register = new client.Registry();
+  client.collectDefaultMetrics({ register, prefix: 'profile_service_' });
+  const httpRequestDuration = new client.Histogram({
+    name: 'http_request_duration_seconds',
+    help: 'HTTP request duration in seconds',
+    labelNames: ['method', 'route', 'status_code'],
+    registers: [register]
+  });
+  const httpRequestsTotal = new client.Counter({
+    name: 'http_requests_total',
+    help: 'Total number of HTTP requests',
+    labelNames: ['method', 'route', 'status_code'],
+    registers: [register]
+  });
+
+  const fastify = fastifyFactory({ logger, ...opts });
+  fastify.register(require('@fastify/cors'), {
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true
+  });
+  fastify.register(require('@fastify/jwt'), { secret: process.env.JWT_SECRET });
+  fastify.register(require('@fastify/multipart'), { limits: { fileSize: 5 * 1024 * 1024 } });
+  fastify.register(require('./routes'), { prefix: '/profile' });
+  fastify.register(require('./routes/internal'), { prefix: '/internal' });
+
+  fastify.get('/metrics', async (request, reply) => {
+    reply.type('text/plain');
+    return register.metrics();
+  });
+
+  fastify.addHook('onResponse', (request, reply, done) => {
+    const route = request.routeOptions?.url || request.url.split('?')[0];
+    if (route === '/metrics') return done();
+    const labels = {
+      method: request.method,
+      route,
+      status_code: reply.statusCode
+    };
+    httpRequestsTotal.inc(labels);
+    httpRequestDuration.observe(labels, reply.getResponseTime() / 1000);
+    return done();
+  });
+  fastify.setErrorHandler((err, req, reply) => {
+    if (err.name === 'ZodError') return reply.status(400).send({ error: 'Invalid request', details: err.errors });
+    req.log.error(err);
+    reply.status(500).send({ error: 'Internal Server Error' });
+  });
+  return fastify;
+};
+
+module.exports = { buildServer };

@@ -1,0 +1,78 @@
+# Environment & Secrets
+
+Local development uses `.env` files copied from `env.example` per service.
+Production should use a secrets manager and never commit secrets.
+
+## api-gateway
+
+- `PORT`
+- `AUTH_SERVICE_URL`
+- `PROFILE_SERVICE_URL`
+- `JOBS_SERVICE_URL`
+- `NOTIFICATIONS_SERVICE_URL`
+- `ADMIN_SERVICE_URL`
+- `AI_SERVICE_URL`
+- `CORS_ORIGIN`
+
+## auth-service
+
+- `PORT`
+- `JWT_SECRET`
+- `DATABASE_URL`
+- `PROFILE_SERVICE_URL`
+- `CORS_ORIGIN`
+
+## profile-service
+
+- `PORT`
+- `JWT_SECRET`
+- `DATABASE_URL`
+- `CORS_ORIGIN`
+- `SUPABASE_URL`
+- `SUPABASE_KEY`
+- `SUPABASE_BUCKET`
+
+## jobs-service
+
+- `PORT`
+- `JWT_SECRET`
+- `DATABASE_URL`
+- `PROFILE_SERVICE_URL`
+- `NOTIFICATIONS_SERVICE_URL`
+- `AI_SERVICE_URL`
+- `CORS_ORIGIN`
+- `SHORTLIST_LIMIT`
+- `SHORTLIST_MIN_SCORE`
+- `SHORTLIST_NOTIFY_LIMIT`
+- `NOTIFY_MATCHED`
+
+## ai-matching-service
+
+- `PORT`
+- `PROFILE_SERVICE_URL`
+- `CORS_ORIGIN`
+- `AI_MIN_SCORE`
+- `AI_DEFAULT_LIMIT`
+- `AI_SUBSCRIPTION_BONUS`
+- `AI_LOCATION_BONUS`
+
+## notifications-service
+
+- `PORT`
+- `JWT_SECRET`
+- `DATABASE_URL`
+- `AUTH_SERVICE_URL`
+- `PROFILE_SERVICE_URL`
+- `CORS_ORIGIN`
+
+## admin-service
+
+- `PORT`
+- `JWT_SECRET`
+- `DATABASE_URL`
+- `AUTH_SERVICE_URL`
+- `PROFILE_SERVICE_URL`
+- `JOBS_SERVICE_URL`
+- `NOTIFICATIONS_SERVICE_URL`
+- `CORS_ORIGIN`
+- `AUDIT_RETENTION_DAYS`

@@ -1,0 +1,167 @@
+version: "3.8"
+
+services:
+  api-gateway:
+    build: ./apps/api-gateway
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      PROFILE_SERVICE_URL: http://profile-service:3002
+      JOBS_SERVICE_URL: http://jobs-service:3003
+      NOTIFICATIONS_SERVICE_URL: http://notifications-service:3004
+      ADMIN_SERVICE_URL: http://admin-service:3005
+      AI_SERVICE_URL: http://ai-matching-service:3006
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+    depends_on:
+      - auth-service
+      - profile-service
+      - jobs-service
+      - notifications-service
+      - admin-service
+    volumes:
+      - ./apps/api-gateway:/app
+      - /app/node_modules
+
+  auth-service:
+    build: ./apps/auth-service
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      JWT_SECRET: XcuxdXblcDUd7WCcVdc6hFQNWtl7oBqqLRiP7MTQ2kh+pCd7e5WlEYn4YDEMhMuC
+      DATABASE_URL: postgresql://workbridge_auth:workbridge_auth_pass@db-auth:3454/workbridge_auth_db
+      PROFILE_SERVICE_URL: http://profile-service:3002
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+    depends_on:
+      db-auth:
+        condition: service_healthy
+    command: sh -c "npm run generate && npm run migrate && npm run dev"
+    volumes:
+      - ./apps/auth-service:/app
+      - /app/node_modules
+
+  profile-service:
+    build: ./apps/profile-service
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: 3002
+      JWT_SECRET: XcuxdXblcDUd7WCcVdc6hFQNWtl7oBqqLRiP7MTQ2kh+pCd7e5WlEYn4YDEMhMuC
+      DATABASE_URL: postgresql://workbridge_profile:workbridge_profile_pass@db-profile:3454/workbridge_profile_db
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+      SUPABASE_URL: ""
+      SUPABASE_KEY: ""
+      SUPABASE_BUCKET: resumes
+    depends_on:
+      db-profile:
+        condition: service_healthy
+    command: sh -c "npm run generate && npm run migrate && npm run dev"
+    volumes:
+      - ./apps/profile-service:/app
+      - /app/node_modules
+
+  jobs-service:
+    build: ./apps/jobs-service
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: 3003
+      JWT_SECRET: XcuxdXblcDUd7WCcVdc6hFQNWtl7oBqqLRiP7MTQ2kh+pCd7e5WlEYn4YDEMhMuC
+      DATABASE_URL: postgresql://workbridge_jobs:workbridge_jobs_pass@db-jobs:3454/workbridge_jobs_db
+      PROFILE_SERVICE_URL: http://profile-service:3002
+      NOTIFICATIONS_SERVICE_URL: http://notifications-service:3004
+      AI_SERVICE_URL: http://ai-matching-service:3006
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+      SHORTLIST_LIMIT: 50
+      SHORTLIST_MIN_SCORE: 20
+      SHORTLIST_NOTIFY_LIMIT: 20
+      NOTIFY_MATCHED: true
+    depends_on:
+      db-jobs:
+        condition: service_healthy
+    command: sh -c "npm run generate && npm run migrate && npm run dev"
+    volumes:
+      - ./apps/jobs-service:/app
+      - /app/node_modules
+
+  notifications-service:
+    build: ./apps/notifications-service
+    restart: always
+    ports:
+      - "3004:3004"
+    environment:
+      PORT: 3004
+      JWT_SECRET: XcuxdXblcDUd7WCcVdc6hFQNWtl7oBqqLRiP7MTQ2kh+pCd7e5WlEYn4YDEMhMuC
+      DATABASE_URL: postgresql://workbridge_notif:workbridge_notif_pass@db-notifications:3454/workbridge_notif_db
+      AUTH_SERVICE_URL: http://auth-service:3001
+      PROFILE_SERVICE_URL: http://profile-service:3002
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+    depends_on:
+      db-notifications:
+        condition: service_healthy
+    command: sh -c "npm run generate && npm run migrate && npm run dev"
+    volumes:
+      - ./apps/notifications-service:/app
+      - /app/node_modules
+
+  admin-service:
+    build: ./apps/admin-service
+    restart: always
+    ports:
+      - "3005:3005"
+    environment:
+      PORT: 3005
+      JWT_SECRET: XcuxdXblcDUd7WCcVdc6hFQNWtl7oBqqLRiP7MTQ2kh+pCd7e5WlEYn4YDEMhMuC
+      DATABASE_URL: postgresql://workbridge_admin:workbridge_admin_pass@db-admin:3454/workbridge_admin_db
+      AUTH_SERVICE_URL: http://auth-service:3001
+      PROFILE_SERVICE_URL: http://profile-service:3002
+      JOBS_SERVICE_URL: http://jobs-service:3003
+      NOTIFICATIONS_SERVICE_URL: http://notifications-service:3004
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+      AUDIT_RETENTION_DAYS: 90
+    depends_on:
+      db-admin:
+        condition: service_healthy
+    command: sh -c "npm run generate && npm run migrate && npm run dev"
+    volumes:
+      - ./apps/admin-service:/app
+      - /app/node_modules
+
+  ai-matching-service:
+    build: ./apps/ai-matching-service
+    restart: always
+    ports:
+      - "3006:3006"
+    environment:
+      PORT: 3006
+      PROFILE_SERVICE_URL: http://profile-service:3002
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3000
+      AI_MIN_SCORE: 20
+      AI_DEFAULT_LIMIT: 50
+      AI_SUBSCRIPTION_BONUS: 15
+      AI_LOCATION_BONUS: 15
+    depends_on:
+      - profile-service
+    volumes:
+      - ./apps/ai-matching-service:/app
+      - /app/node_modules
+
+  web:
+    build: ./apps/web
+    restart: always
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:3000
+    depends_on:
+      - api-gateway
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules

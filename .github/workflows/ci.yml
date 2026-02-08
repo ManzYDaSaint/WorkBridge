@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Install Postgres client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Create databases
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -c "CREATE DATABASE workbridge_auth_db;"
+          psql -h localhost -U postgres -c "CREATE DATABASE workbridge_profile_db;"
+          psql -h localhost -U postgres -c "CREATE DATABASE workbridge_jobs_db;"
+          psql -h localhost -U postgres -c "CREATE DATABASE workbridge_notif_db;"
+          psql -h localhost -U postgres -c "CREATE DATABASE workbridge_admin_db;"
+
+      - name: Prisma generate + migrate (auth)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/workbridge_auth_db
+        run: |
+          npm run generate --prefix apps/auth-service
+          npm run migrate --prefix apps/auth-service
+
+      - name: Prisma generate + migrate (profile)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/workbridge_profile_db
+        run: |
+          npm run generate --prefix apps/profile-service
+          npm run migrate --prefix apps/profile-service
+
+      - name: Prisma generate + migrate (jobs)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/workbridge_jobs_db
+        run: |
+          npm run generate --prefix apps/jobs-service
+          npm run migrate --prefix apps/jobs-service
+
+      - name: Prisma generate + migrate (notifications)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/workbridge_notif_db
+        run: |
+          npm run generate --prefix apps/notifications-service
+          npm run migrate --prefix apps/notifications-service
+
+      - name: Prisma generate + migrate (admin)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/workbridge_admin_db
+        run: |
+          npm run generate --prefix apps/admin-service
+          npm run migrate --prefix apps/admin-service
+
+      - name: Web tests
+        if: ${{ hashFiles('apps/web/src/__tests__/**') != '' }}
+        run: npm test --prefix apps/web -- --runInBand
+
+      - name: API/service tests
+        run: |
+          set -e
+          for dir in apps/api-gateway apps/auth-service apps/profile-service apps/jobs-service apps/notifications-service apps/admin-service; do
+            if [ -f "$dir/package.json" ]; then
+              HAS_TEST=$(node -e "const p=require('./$dir/package.json'); console.log(!!(p.scripts&&p.scripts.test))")
+              if [ "$HAS_TEST" = "true" ]; then
+                echo "Running tests in $dir"
+                npm test --prefix "$dir"
+              else
+                echo "Skipping tests in $dir (no test script)"
+              fi
+            fi
+          done
+
+      - name: Web build
+        run: npm run build --prefix apps/web
