@@ -8,11 +8,8 @@ const { getUpstream, proxyRequest } = require('./proxy');
 
 const buildServer = (opts = {}) => {
   const logDir = path.join(__dirname, '..', 'logs');
-  fs.mkdirSync(logDir, { recursive: true });
-  const logger = pino(
-    { level: process.env.LOG_LEVEL || 'info' },
-    pino.destination({ dest: path.join(logDir, 'api-gateway.log'), sync: false })
-  );
+  // fs.mkdirSync(logDir, { recursive: true }); // Handled by pino transport
+
 
   const register = new client.Registry();
   client.collectDefaultMetrics({ register, prefix: 'api_gateway_' });
@@ -29,7 +26,16 @@ const buildServer = (opts = {}) => {
     registers: [register]
   });
 
-  const fastify = fastifyFactory({ logger, ...opts });
+  const fastify = fastifyFactory({
+    logger: {
+      level: process.env.LOG_LEVEL || 'info',
+      transport: {
+        target: 'pino/file',
+        options: { destination: path.join(logDir, 'api-gateway.log'), mkdir: true }
+      }
+    },
+    ...opts
+  });
 
   fastify.register(require('@fastify/cors'), {
     origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173', 'http://localhost:3000'],
